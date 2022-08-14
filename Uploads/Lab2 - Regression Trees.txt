@@ -1,0 +1,39 @@
+# Inspect the dataset
+print("Dataframe shape is:", df.shape)
+df.head()
+df.plot.scatter(x=['Years'], y=['Hits'], c=df['Salary'], s=40)
+plt.show()
+his = plt.hist(df['Salary'], bins=25)
+
+# Define the variables
+X = df[['Years', 'Hits']]
+y = np.log(df['Salary'])
+
+# Split the data with a 70-30 split
+# Use random_state = 101
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=101)
+
+# test_size parameter defines the fraction of data that will be used as test data
+
+# Run the model
+from sklearn.linear_model import LinearRegression
+mlr = LinearRegression()
+mlr.fit(X_train, y_train)
+pred = lr.predict(X_test)
+
+# Print the coefficients
+
+print ("intercept : ",mlr.intercept_)
+print ("coefficient : ",mlr.coef_)
+
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+
+est = smf.ols('Salary ~ Years + Hits', df).fit()
+est.summary()
+
+# Obtain the MSE
+metrics.mean_squared_error(y_test, pred)
+

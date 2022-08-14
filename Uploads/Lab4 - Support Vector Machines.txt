@@ -1,0 +1,85 @@
+# Import relevant libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import (confusion_matrix, plot_confusion_matrix, classification_report)
+
+print('Libraries have been imported.')
+
+# Import the dataset
+data = pd.read_csv('heart_failure_clinical_records_dataset.csv')
+
+# Inspect the dataset
+data.head(10)
+
+# Generate Summary statistics
+data.describe().T
+
+# Inspect the various columns (features) in the dataset
+data.info()
+
+# Convert age to integer type 
+data['age'] = data['age'].astype(int)
+data.info()
+
+# Define the variables
+X = data.drop('DEATH_EVENT', axis = 1)
+y = data['DEATH_EVENT']
+
+# Plot a histogram of the distribution of Age feature in the dataset
+# Hint use Seaborn's distplot 
+sns.set_style(style='whitegrid')
+sns.distplot(data['age'], color = 'green', bins = 25)
+
+# Split the data with a 70-30 split
+# Use random_state = 42
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, random_state = 42)
+
+# Inspect the actual data
+print(X_test.shape, y_test.shape)
+
+# Run the model and obtain the predictions
+# Import svm model
+from sklearn import svm
+
+# Create a svm Classifier
+svm_model = svm.SVC(kernel='linear') # Linear Kernel
+
+# Train the model using the training sets
+svm_model.fit(X_train, y_train)
+
+# Predict the response for test dataset
+y_pred = svm_model.predict(X_test)
+
+# Combine the actual dataset target with the predictions
+test_data = pd.DataFrame({'Actual':y_test, 'Predictions':y_pred})
+test_data.sample(n=10)
+
+# Plot the predictions with the actual target
+plt.figure(figsize=(18,3))
+plt.scatter(X_test['age'],test_data['Actual'],label='Actual', alpha=0.7)
+plt.scatter(X_test['age'],test_data['Predictions'],label='Predictions', marker='^',alpha=0.7)
+plt.legend(loc=7)
+plt.yticks([0,1])
+plt.xlabel('Age')
+plt.ylabel('Survived/Died')
+plt.show()
+
+# Plot the confusion matrix
+from sklearn.metrics import plot_confusion_matrix
+disp = plot_confusion_matrix(svm_model, 
+                             X_test, 
+                             y_test,    
+                             display_labels=["survived","died"],
+                             cmap=plt.cm.Blues)
+disp.ax_.set_title("Confusion Matrix")
+plt.show()
+
+# Obtain the classification report
+print(classification_report(y_test, y_pred, labels=[0,1], target_names=['survived','died']))
+
+# Obtain the accuracy score
+svm_model_s = svm_model.score(X_test, y_test)
+print("Accuracy:", int(svm_model_s *100), "%")
